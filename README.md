@@ -6,5 +6,5 @@ Create simple todo REST API with different backend frameworks.
 
 ## Back end
 - [x] Nestjs (nodejs, typescript, mongo)
-- [ ] Gin (golang)
+- [x] Gin (golang)
 - [ ] Actix (Rust)
