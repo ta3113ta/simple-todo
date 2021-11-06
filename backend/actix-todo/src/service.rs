@@ -1,4 +1,4 @@
-use actix_web::{get, patch, post, delete, web, HttpResponse};
+use actix_web::{delete, get, patch, post, web, HttpResponse};
 
 use crate::{db::TodoModel, model::Todo};
 
@@ -30,8 +30,15 @@ pub async fn create(model: web::Data<TodoModel>, todo_insert: web::Json<Todo>) -
 }
 
 #[patch("/todo/{id}")]
-pub async fn update(model: web::Data<TodoModel>, id: web::Path<String>) -> HttpResponse {
-    match model.update(id.into_inner()).await {
+pub async fn update(
+    model: web::Data<TodoModel>,
+    id: web::Path<String>,
+    todo_update: web::Json<Todo>,
+) -> HttpResponse {
+    match model
+        .update(id.into_inner(), todo_update.into_inner())
+        .await
+    {
         Ok(_) => HttpResponse::Ok().body("updated"),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
     }
@@ -39,8 +46,8 @@ pub async fn update(model: web::Data<TodoModel>, id: web::Path<String>) -> HttpR
 
 #[delete("/todo/{id}")]
 pub async fn delete(model: web::Data<TodoModel>, id: web::Path<String>) -> HttpResponse {
-	match model.delete(id.into_inner()).await {
-		Ok(_) => HttpResponse::Ok().body("deleted"),
-		Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-	}
+    match model.delete(id.into_inner()).await {
+        Ok(_) => HttpResponse::Ok().body("deleted"),
+        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+    }
 }

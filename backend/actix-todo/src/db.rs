@@ -1,6 +1,6 @@
 use futures_util::StreamExt;
 use mongodb::{
-    bson::{doc, oid::ObjectId},
+    bson::{self, doc, oid::ObjectId},
     Client, Collection,
 };
 
@@ -54,14 +54,12 @@ impl TodoModel {
         }
     }
 
-    pub async fn update(&self, id: String) -> Result<(), mongodb::error::Error> {
+    pub async fn update(&self, id: String, update_todo: Todo) -> Result<(), mongodb::error::Error> {
         let collection: Collection<Todo> = self.client.database(DB_NAME).collection(COLL_NAME);
 
         let obj_id = ObjectId::parse_str(id).unwrap();
         let filter = doc! {"_id": obj_id};
-
-        // TODO: update by Todo
-        let update = doc! {"$set" : {"title": "updated from rust"} };
+        let update = doc! {"$set" : bson::to_bson(&update_todo).unwrap()};
 
         let result = collection.find_one_and_update(filter, update, None).await;
         match result {
