@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { TodoService } from './todo.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
@@ -28,19 +29,22 @@ export class TodoController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
     const todo = await this.todoService.findOne(id);
     return { success: true, data: todo };
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
+  async update(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() updateTodoDto: UpdateTodoDto,
+  ) {
     const todo = await this.todoService.update(id, updateTodoDto);
     return { success: true, data: todo };
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id', new ParseUUIDPipe()) id: string) {
     const todo = await this.todoService.remove(id);
     return { success: true, data: todo };
   }

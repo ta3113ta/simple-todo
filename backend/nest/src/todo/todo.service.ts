@@ -20,19 +20,17 @@ export class TodoService {
   }
 
   async findOne(id: string) {
-    const todo = await this.todoModel.findById(id);
+    const todo = await this.todoModel.findOne({ id });
     return todo;
   }
 
   async update(id: string, updateTodoDto: UpdateTodoDto) {
-    const todo = await this.todoModel.findByIdAndUpdate(id, {
-      ...updateTodoDto,
-    });
+    const todo = await this.todoModel.findOneAndUpdate({ id }, updateTodoDto);
     return todo;
   }
 
   async remove(id: string) {
-    const todo = await this.todoModel.findByIdAndRemove(id);
+    const todo = await this.todoModel.findOneAndRemove({ id });
     if (!todo) {
       throw new NotFoundException('No todo id found');
     }
