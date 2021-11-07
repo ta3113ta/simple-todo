@@ -3,11 +3,13 @@ package todoCRUD
 import (
 	"log"
 
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Todo struct {
+	Id        string `json:"id"`
 	Title     string `json:"title" binding:"required"`
 	Note      string `json:"note"`
 	Completed bool   `json:"completed"`
@@ -24,6 +26,8 @@ func CreateTodo(todo *Todo) {
 	defer cancel()
 
 	collection := client.Database("projects").Collection("todos")
+
+	todo.Id = uuid.New().String()
 
 	if _, err := collection.InsertOne(ctx, todo); err != nil {
 		log.Printf("Can not insert data, Error: %v", err)
@@ -65,16 +69,11 @@ func FindOneById(id string) primitive.M {
 	client, ctx, cancel := GetConnection()
 	defer cancel()
 
-	objID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	filter := bson.M{"_id": bson.M{"$eq": objID}}
+	filter := bson.M{"id": bson.M{"$eq": id}}
 
 	var todo primitive.M
 	collection := client.Database("projects").Collection("todos")
-	err = collection.FindOne(ctx, filter).Decode(&todo)
+	err := collection.FindOne(ctx, filter).Decode(&todo)
 
 	if err != nil {
 		log.Fatal(err)
@@ -87,13 +86,8 @@ func UpdateTodo(id string, updateTodoDto TodoUpdate) {
 	client, ctx, cancel := GetConnection()
 	defer cancel()
 
-	objID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	collection := client.Database("projects").Collection("todos")
-	filter := bson.M{"_id": bson.M{"$eq": objID}}
+	filter := bson.M{"id": bson.M{"$eq": id}}
 	todo := bson.D{primitive.E{Key: "$set", Value: updateTodoDto}}
 
 	result := collection.FindOneAndUpdate(ctx, filter, todo)
@@ -106,15 +100,10 @@ func DeleteTodo(id string) {
 	client, ctx, cancel := GetConnection()
 	defer cancel()
 
-	objID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	collection := client.Database("projects").Collection("todos")
-	filter := bson.M{"_id": bson.M{"$eq": objID}}
+	filter := bson.M{"id": bson.M{"$eq": id}}
 
-	_, err = collection.DeleteOne(ctx, filter)
+	_, err := collection.DeleteOne(ctx, filter)
 	if err != nil {
 		log.Fatal(err)
 	}
