@@ -1,6 +1,6 @@
 use actix_web::{delete, get, patch, post, web, HttpResponse};
 
-use crate::{db::TodoModel, model::Todo};
+use crate::{db::TodoModel, dto::CreateTodoDto, model::Todo};
 
 #[get("/todo")]
 pub async fn find_all(model: web::Data<TodoModel>) -> HttpResponse {
@@ -13,7 +13,6 @@ pub async fn find_all(model: web::Data<TodoModel>) -> HttpResponse {
 #[get("/todo/{id}")]
 pub async fn find_todo(model: web::Data<TodoModel>, id: web::Path<String>) -> HttpResponse {
     let id = id.into_inner();
-    println!("id is: {}", id);
     match model.find_one(id).await {
         Ok(Some(todo)) => HttpResponse::Ok().json(todo),
         Ok(None) => HttpResponse::NotFound().body("No todo found"),
@@ -22,7 +21,7 @@ pub async fn find_todo(model: web::Data<TodoModel>, id: web::Path<String>) -> Ht
 }
 
 #[post("/todo")]
-pub async fn create(model: web::Data<TodoModel>, todo_insert: web::Json<Todo>) -> HttpResponse {
+pub async fn create(model: web::Data<TodoModel>, todo_insert: web::Json<CreateTodoDto>) -> HttpResponse {
     match model.create(todo_insert.into_inner()).await {
         Ok(_) => HttpResponse::Created().body("created todo"),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),

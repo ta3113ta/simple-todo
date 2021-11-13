@@ -4,7 +4,7 @@ use mongodb::{
     Client, Collection,
 };
 
-use crate::model::Todo;
+use crate::{dto::CreateTodoDto, model::Todo};
 
 const DB_NAME: &str = "projects";
 const COLL_NAME: &str = "todos";
@@ -45,8 +45,9 @@ impl TodoModel {
         }
     }
 
-    pub async fn create(&self, todo_insert: Todo) -> Result<(), mongodb::error::Error> {
+    pub async fn create(&self, todo_insert: CreateTodoDto) -> Result<(), mongodb::error::Error> {
         let collection: Collection<Todo> = self.client.database(DB_NAME).collection(COLL_NAME);
+        let todo_insert: Todo = todo_insert.into();
         let result = collection.insert_one(todo_insert, None).await;
         match result {
             Ok(_) => Ok(()),
