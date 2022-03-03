@@ -4,6 +4,8 @@ use mongodb::{
     Client, Collection,
 };
 
+type Result<T> = std::result::Result<T, mongodb::error::Error>;
+
 use crate::{dto::CreateTodoDto, model::Todo};
 
 const DB_NAME: &str = "projects";
@@ -24,7 +26,7 @@ impl TodoModel {
         Self { client }
     }
 
-    pub async fn find(&self) -> std::result::Result<Vec<Todo>, mongodb::error::Error> {
+    pub async fn find(&self) -> Result<Vec<Todo>, mongodb::error::Error> {
         let collection: Collection<Todo> = self.client.database(DB_NAME).collection(COLL_NAME);
         let mut todos: Vec<Todo> = Vec::new();
         let mut cursor = collection.find(None, None).await?;
